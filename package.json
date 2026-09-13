@@ -10,10 +10,19 @@
   "author": "Swaroop Gupta",
   "type": "commonjs",
   "main": "index.js",
+
   "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongoose": "^9.10.0"
+  },
+
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
