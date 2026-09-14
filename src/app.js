@@ -7,6 +7,7 @@ const User = require('./models/user');
 //     res.send("Hello from the server!");
 // });
 app.use(express.json());
+
 app.post("/signup",async(req,res)=>{
     // const userobj = {
     //     firstName: "Swaroop",
@@ -17,6 +18,17 @@ app.post("/signup",async(req,res)=>{
     const user = new User(req.body);
     await user.save();
     res.send("User signed up successfully");
+})
+app.get("/users",async(req,res)=>{
+    const email = req.body.emailID;
+    const users = await User.find({ emailID: email });
+
+    res.send(users);
+})
+
+app.get("/feed",async(req,res)=>{
+    const users = await User.find();
+    res.send(users);
 })
 connectdb()
 .then(()=>{
