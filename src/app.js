@@ -6,6 +6,7 @@ const {validateSignUpData} = require('./utlis/validation');
 const User = require('./models/user');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const userAuth = require('./middlewares/auth');
 // app.use((req,res)=>{
 //     res.send("Hello from the server!");
 // });
@@ -40,13 +41,15 @@ app.post("/login",async(req,res) =>{
         if(!user){
             throw new Error("User not found");
         }
-        const isMatch = await bcrypt.compare(password,user.password);
+        //const isMatch = await bcrypt.compare(password,user.password);
+        const isMatch = await user.validatePassword(password);
         if(!isMatch){
             throw new Error("Invalid password");
         }
         if(isMatch){
-            const token = await jwt.sign({_id:user._id}, "DEV@123");
-            res.cookie("token",token);
+           // const token = await jwt.sign({_id:user._id}, "DEV@123");
+           const token = await user.getJWT(); 
+           res.cookie("token",token);
             res.send("User logged in successfully");
         }
         else{
@@ -86,19 +89,20 @@ app.get("/feed",async(req,res)=>{
     }
         
 })
-app.get("/profile",async(req,res)=>{
+app.get("/profile",userAuth,async(req,res)=>{
     try{
         const cookies = req.cookies;
-        const {token} = cookies;
-        if(!token){
-            throw new Error("No token found");
-        }
-        const decodedMessage = jwt.verify(token,"DEV@123");
-        const {_id} = decodedMessage;
-        const user = await User.findById(_id);
-        if(!user){
-            throw new Error("User not found");
-        }
+        // const {token} = cookies;
+        // if(!token){
+        //     throw new Error("No token found");
+        // }
+        // const decodedMessage = jwt.verify(token,"DEV@123");
+        // const {_id} = decodedMessage;
+        // const user = await User.findById(_id);
+        // if(!user){
+        //     throw new Error("User not found");
+        // }
+        const user = req.user;
         res.send(user);
     }
     catch(err){
