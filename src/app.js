@@ -4,10 +4,13 @@ const app = express();
 const bcrypt = require('bcrypt');
 const {validateSignUpData} = require('./utlis/validation');
 const User = require('./models/user');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 // app.use((req,res)=>{
 //     res.send("Hello from the server!");
 // });
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup",async(req,res)=>{
     // const userobj = {
@@ -41,7 +44,15 @@ app.post("/login",async(req,res) =>{
         if(!isMatch){
             throw new Error("Invalid password");
         }
-        res.send("User logged in successfully");
+        if(isMatch){
+            const token = await jwt.sign({_id:user._id}, "DEV@123");
+            res.cookie("token",token);
+            res.send("User logged in successfully");
+        }
+        else{
+            throw new Error("Invalid password");
+        }
+        
     }
     catch(err){
         res.status(400).send("Error occurred while logging in" + err.message);
@@ -75,6 +86,25 @@ app.get("/feed",async(req,res)=>{
     }
         
 })
+app.get("/profile",async(req,res)=>{
+    try{
+        const cookies = req.cookies;
+        const {token} = cookies;
+        if(!token){
+            throw new Error("No token found");
+        }
+        const decodedMessage = jwt.verify(token,"DEV@123");
+        const {_id} = decodedMessage;
+        const user = await User.findById(_id);
+        if(!user){
+            throw new Error("User not found");
+        }
+        res.send(user);
+    }
+    catch(err){
+        res.status(400).send("Error occurred while fetching profile" + err.message);
+    }
+});
 // delete user from the database
 app.delete("/users",async(req,res)=>{
     const userId = req.body.userId;
