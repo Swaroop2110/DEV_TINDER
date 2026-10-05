@@ -1,9 +1,9 @@
 const express = require("express");
 const profileRouter = express.Router();
-const {userAuth} = require("../middleware/auth");
+const userAuth = require("../middlewares/auth");
 
 
-profileRouter.get("/profile",userAuth,async(req,res)=>{
+profileRouter.get("/",userAuth,async(req,res)=>{
     try{
         const cookies = req.cookies;
         // const {token} = cookies;
@@ -23,4 +23,4 @@ profileRouter.get("/profile",userAuth,async(req,res)=>{
         res.status(400).send("Error occurred while fetching profile" + err.message);
     }
 });
-moudle.exports = profileRouter;
+module.exports = profileRouter;

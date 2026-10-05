@@ -80,6 +80,7 @@ app.patch("/users/:userId",async(req,res)=>{
     }
 })
 app.use("/auth",authRouter);
+app.use(authRouter);
 app.use("/profile",profileRouter);
 app.use("/request",requestRouter);
 connectdb()

@@ -1,21 +1,24 @@
 const express = require("express");
 const authRouter = express.Router();
-const{validateSignUpData} = require("../utils/validation");
+const{validateSignUpData} = require("../utlis/validation");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 authRouter.post("/signup",async(req,res)=>{
-    // const userobj = {
-    //     firstName: "Swaroop",
-    //     lastName:"Gupta",
-    //     emailID:"swaroopgupta2005@gmail.com",
-    //     password:"swaroop2005",
-    // }
-   // const user = new User(req.body);
     try{
         validateSignUpData(req);
         const {firstName,lastName,emailID,password,age,gender,photoUrl,about,skills} = req.body;
         const passwordhash = await bcrypt.hash(password,10);
-
+        const user = new User({
+            firstName,
+            lastName,
+            emailID,
+            password: passwordhash,
+            age,
+            gender,
+            photoUrl,
+            about,
+            skills,
+        });
         await user.save();
         res.send("User signed up successfully");
     }
@@ -24,7 +27,7 @@ authRouter.post("/signup",async(req,res)=>{
     }
     
 })
-app.post("/login",async(req,res) =>{
+authRouter.post("/login",async(req,res) =>{
     try{
         const {emailID,password} = req.body;
         const user = await User.findOne({emailID});
