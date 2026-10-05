@@ -2,6 +2,8 @@ const express = require("express");
 const profileRouter = express.Router();
 const userAuth = require("../middlewares/auth");
 const {validateEditProfileData} = require("../utlis/validation");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 profileRouter.get("/profile/view",userAuth,async(req,res)=>{
     try{
@@ -38,4 +40,30 @@ profileRouter.post("/profile/edit",userAuth,async(req,res)=>{
     catch(err){
         res.status(400).send("Error occurred while editing profile" + err.message);
 }});
+
+profileRouter.patch("/password",userAuth,async(req,res)=>{
+    try{
+        const {currentPassword,newPassword} = req.body;
+        if(typeof currentPassword !== "string" || typeof newPassword !== "string"){
+            return res.status(400).send("Current password and new password are required");
+        }
+        if(!validator.isStrongPassword(newPassword)){
+            return res.status(400).send("New password is not strong enough");
+        }
+
+        const loggedInUser = req.user;
+        const isCurrentPasswordValid = await loggedInUser.validatePassword(currentPassword);
+        if(!isCurrentPasswordValid){
+            return res.status(401).send("Current password is incorrect");
+        }
+
+        loggedInUser.password = await bcrypt.hash(newPassword,10);
+        await loggedInUser.save();
+        res.send("Password updated successfully");
+    }
+    catch(err){
+        res.status(400).send("Error occurred while updating password: " + err.message);
+    }
+});
+
 module.exports = profileRouter;
