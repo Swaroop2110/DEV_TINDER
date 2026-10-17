@@ -45,4 +45,33 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
     }
 });
 
+requestRouter.post("/request/review/:status/:requestId", userAuth, async(req,res)=>{
+    try{
+      const {status,requestId} = req.params;
+      const loggedInUserId = req.user;
+      const allowedStatus = ["accpeted", "rejected"];
+      if(!allowedStatus.includes(status)){
+        return res.status(400).send({error: "Invalid status type"});
+      }
+      const connectionRequest = await ConnectionRequest.findById({
+        _id: requestId,
+        status: "interested",
+        toUserId: loggedInUserId._id,
+      });
+      if(!connectionRequest){
+        return res.status(404).send({error: "Connection request not found"});
+      }
+      
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+      res.json({
+        message: "Connection request " + status,
+        data, 
+      })
+    }
+    catch(err){
+      res.status(400).send({error: err.message});
+    }
+});
+
 module.exports = requestRouter;
