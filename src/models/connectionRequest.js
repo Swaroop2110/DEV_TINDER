@@ -2,6 +2,7 @@ const moongose = require('moongose');
 const connectionRequestSchema = new moongose.Schema({
     fromUserId:{
         type: moongose.Schema.Types.ObjectId,
+        ref:"User",
         required: true,
     },
     toUserId:{

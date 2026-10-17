@@ -15,7 +15,7 @@ app.use(cookieParser());
 const authRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
 const requestRouter = require('./routes/request');
-
+const userRouter = require('./routes/user');
 //get user by emailID
 app.get("/users",async(req,res)=>{
     const email = req.body.emailID;
@@ -80,9 +80,10 @@ app.patch("/users/:userId",async(req,res)=>{
     }
 })
 app.use("/auth",authRouter);
-app.use(authRouter);
-app.use("/profile",profileRouter);
-app.use("/request",requestRouter);
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
+app.use("/",userRouter);
 connectdb()
 .then(()=>{
     console.log("Database connected successfully");
