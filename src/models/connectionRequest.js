@@ -1,34 +1,35 @@
-const moongose = require('moongose');
-const connectionRequestSchema = new moongose.Schema({
-    fromUserId:{
-        type: moongose.Schema.Types.ObjectId,
-        ref:"User",
+﻿const mongoose = require('mongoose');
+
+const connectionRequestSchema = new mongoose.Schema({
+    fromUserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
-    toUserId:{
-        type: moongose.Schema.Types.ObjectId,
+    toUserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
-        ref:"User",
     },
-    status:{
+    status: {
         type: String,
         required: true,
-
-        enum:{
-         values:   ["ignored","interested","accepted","rejected"],
-         message:`{VALUE} is incorrect status type`,
+        enum: {
+            values: ['ignored', 'interested', 'accepted', 'rejected'],
+            message: '{VALUE} is incorrect status type',
         },
     },
-},
-{timestamps:true}
-);
-connectionrequestSchema.index({fromUserId:1,toUserId:1});
-connnectionRequestSchema.pre('save',function(next){
+}, { timestamps: true });
+
+connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+
+connectionRequestSchema.pre('save', function(next) {
     const connectionRequest = this;
-    if(connectionReques.fromUserId.equals(connectionRequest.toUserId)){
+    if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
         throw new Error('fromUserId and toUserId cannot be the same');
     }
     next();
 });
-const ConnectionRequestModel = moongose.model('ConnectionRequest',connectionRequestSchema);
+
+const ConnectionRequestModel = mongoose.model('ConnectionRequest', connectionRequestSchema);
 module.exports = ConnectionRequestModel;
